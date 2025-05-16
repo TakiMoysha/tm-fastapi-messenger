@@ -54,9 +54,9 @@ class ChatModel(BigIntAuditBase):
         uselist=True,
         cascade="all, delete",
     )
-    groups: Mapped[list["ChatGroupModel"]] = relationship(
+    group: Mapped["ChatGroupModel"] = relationship(
         back_populates="chat",
         lazy="selectin",
-        uselist=True,
+        uselist=False,
         cascade="all, delete",
     )

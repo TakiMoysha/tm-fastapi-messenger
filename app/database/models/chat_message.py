@@ -18,6 +18,15 @@ class ChatMessageModel(UUIDv7AuditBase):
     Attributes:
         id:
 
+        chat_id:
+        sender_id:
+        text:
+        timestamp:
+        is_read:
+
+        chat:
+        sender:
+
         created_at:
         updated_at:
     """

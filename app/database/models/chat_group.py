@@ -9,6 +9,12 @@ if TYPE_CHECKING:
     from .chat import ChatModel
 
 
+def _participants():
+    from .chat_group_participants import chat_group_participant_association
+
+    return chat_group_participant_association
+
+
 # (id, title, creator_id, participants)
 class ChatGroupModel(BigIntAuditBase):
     """
@@ -29,14 +35,12 @@ class ChatGroupModel(BigIntAuditBase):
     # ============================== Relationships
 
     chat: Mapped["ChatModel"] = relationship(
-        back_populates="groups",
+        back_populates="group",
         lazy="selectin",
         uselist=False,
         cascade="all, delete",
     )
-    # participants: Mapped[list["UserModel"]] = relationship(
-    #     back_populates="chat_groups",
-    #     lazy="selectin",
-    #     uselist=True,
-    #     cascade="all, delete",
-    # )
+    participants: Mapped[list["UserModel"]] = relationship(
+        secondary=lambda: _participants(),
+        back_populates="groups",
+    )

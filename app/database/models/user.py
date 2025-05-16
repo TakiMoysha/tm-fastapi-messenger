@@ -11,6 +11,12 @@ from .chat_group import ChatGroupModel
 from .chat_message import ChatMessageModel
 
 
+def _groups():
+    from .chat_group_participants import chat_group_participant_association
+
+    return chat_group_participant_association
+
+
 # (id, name, email, password)
 class UserModel(UUIDAuditBase):
     """
@@ -33,13 +39,17 @@ class UserModel(UUIDAuditBase):
 
     chats: Mapped[list["ChatModel"]] = relationship(
         back_populates="creator",
+        lazy="joined",
         innerjoin=True,
         uselist=True,
-        lazy="joined",
     )
-    sent_messages: Mapped[list["ChatMessageModel"]] = relationship(back_populates="sender")
-
-    # groups: Mapped[list["ChatGroupModel"]] = relationship(back_populates="participants")
+    sent_messages: Mapped[list["ChatMessageModel"]] = relationship(
+        back_populates="sender",
+    )
+    groups: Mapped[list["ChatGroupModel"]] = relationship(
+        secondary=lambda: _groups(),
+        back_populates="participants",
+    )
 
     @hybrid_property
     def has_password(self) -> bool:
