@@ -1,0 +1,27 @@
+networks:
+  gateway:
+    driver: bridge
+  private:
+    driver: bridge
+
+services:
+  postgres:
+    image: "bitnami/postgresql:latest"
+    container_name: fastapi-messenger-postgres
+    environment:
+      - POSTGRES_USER=fastapi-messenger-user
+      - POSTGRES_PASSWORD=fastapi-messenger-pass
+      - POSTGRES_DB=fastapi-messenger-db
+    networks:
+      - private
+    volumes:
+      - ./tmp/:/bitnami/postgresql/data
+
+  app-dev:
+    build: .
+    container_name: fastapi-messenger-app
+    depends_on:
+      - postgres
+    networks:
+      - gateway
+      - private

@@ -1,0 +1,1 @@
+CACHE_EXPIRATION: int = 60
