@@ -7,9 +7,9 @@ from sqlalchemy import ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
-    from .user import UserModel
     from .chat_group import ChatGroupModel
     from .chat_message import ChatMessageModel
+    from .user import UserModel
 
 
 class ChatGroupKind(Enum):
@@ -44,19 +44,13 @@ class ChatModel(BigIntAuditBase):
 
     creator: Mapped["UserModel"] = relationship(
         back_populates="chats",
-        lazy="selectin",
-        uselist=False,
         cascade="all, delete",
     )
     messages: Mapped[list["ChatMessageModel"]] = relationship(
         back_populates="chat",
-        lazy="selectin",
-        uselist=True,
         cascade="all, delete",
     )
     group: Mapped["ChatGroupModel"] = relationship(
         back_populates="chat",
-        lazy="selectin",
-        uselist=False,
         cascade="all, delete",
     )

@@ -14,6 +14,9 @@ logger = getLogger(__name__)
 __all__ = ("ChatService",)
 
 
-class ChatService(SQLAlchemyAsyncQueryService[ChatModel]):
+class ChatService(SQLAlchemyAsyncRepositoryService[ChatModel]):
+    class ChatRepository(SQLAlchemyAsyncRepository[ChatModel]):
+        model_type = ChatModel
+
     repository_type = ChatRepository
-    match_fields = ["id", "slug"]
+    match_fields = ["id"]

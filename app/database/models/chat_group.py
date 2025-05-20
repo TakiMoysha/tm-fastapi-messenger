@@ -21,6 +21,9 @@ class ChatGroupModel(BigIntAuditBase):
     Attributes:
         id:
 
+        title:
+        chat_id:
+
         created_at:
         updated_at:
     """
@@ -30,6 +33,7 @@ class ChatGroupModel(BigIntAuditBase):
     __pii_columns__ = {"email"}
 
     title: Mapped[str] = mapped_column(String(length=255), nullable=True)
+    # slug: Mapped[str]
     chat_id: Mapped[int] = mapped_column(ForeignKey("chats.id", ondelete="CASCADE"), nullable=False)
 
     # ============================== Relationships

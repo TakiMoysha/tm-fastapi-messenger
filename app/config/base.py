@@ -4,6 +4,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Final
 
+from sqlalchemy import StaticPool
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from app.exceptions import ConfigException
@@ -18,7 +19,7 @@ class ServerConfig:
     testing: bool = field(default_factory=lambda: get_upcast_env("SERVER_TESTING", False))
 
     secret_key: str = field(default_factory=lambda: get_upcast_env("SERVER_SECRET_KEY", "_dont_expose_me_"), repr=False, hash=False)  # fmt: skip
-    algorithm: str = field(default_factory=lambda: get_upcast_env("SERVER_ALGORITHM", "HS256"), repr=False, hash=False)  # fmt: skip
+    algorithm: str = field(default_factory=lambda: get_upcast_env("SERVER_ALGORITHM", "argon2"), repr=False, hash=False)  # fmt: skip
     access_token_expire_minutes: int = field(default_factory=lambda: get_upcast_env("SERVER_ACCESS_TOKEN_EXPIRE_MINUTES", 30))  # fmt: skip
     ws_heartbeat_timeout: int = field(default_factory=lambda: get_upcast_env("SERVER_WS_HEARTBEAT_TIMEOUT", 10))  # fmt: skip
 
@@ -53,7 +54,8 @@ class DatabaseConfig:
     user: str = field(default_factory=lambda: get_upcast_env("DB_USER", "fastapimessenger"))
     password: str = field(default_factory=lambda: get_upcast_env("DB_PASSWORD", "fastapimessenger"), repr=False, hash=False)  # fmt: skip
 
-    _url: str | None = field(default_factory=lambda: getenv("DB_URL"), repr=False, hash=False)
+    _url: str | None = field(default_factory=lambda: getenv("DB_URL", None), repr=False, hash=False)
+    _engine_instance: AsyncEngine | None = None
 
     fixtures_path = Path(APP_HOME / "database" / "fixtures")
 
@@ -68,7 +70,7 @@ class DatabaseConfig:
 
         return f"{self.driver}://{self.user}:{self.password}@{self.host}:{self.port}/{self.database}"
 
-    def get_engine(self) -> AsyncEngine:
+    def get_engine(self, *, debug: bool = False) -> AsyncEngine:
         if self._engine_instance is not None:
             return self._engine_instance
 
@@ -78,6 +80,14 @@ class DatabaseConfig:
                 future=True,
                 pool_use_lifo=True,
             )
+        elif self.url.startswith("sqltite+aiosqlite") and self.url.endswith(":memory:"):
+            engine = create_async_engine(
+                url=self.url,
+                debug=debug,
+                echo=debug,
+                connect_args={"check_same_thread": False},
+                poolclass=StaticPool,
+            )
         else:
             engine = create_async_engine(
                 url=self.url,
@@ -86,14 +96,6 @@ class DatabaseConfig:
 
         self._engine_instance = engine
         return self._engine_instance
-
-
-@dataclass
-class SAQConfig:
-    processes: int = field(default_factory=lambda: get_upcast_env("SAQ_PROCESSES", 1))
-    concurrency: int = field(default_factory=lambda: get_upcast_env("SAQ_CONCURRENCY", 10))
-    web_enabled: bool = field(default_factory=lambda: get_upcast_env("SAQ_WEB_ENABLED", True))
-    use_server_lifespan: bool = field(default_factory=lambda: get_upcast_env("SAQ_USE_SERVER_LIFESPAN", True))
 
 
 @dataclass
@@ -111,7 +113,6 @@ class LoggingConfig:
 @dataclass
 class AppConfig:
     server: ServerConfig = field(default_factory=ServerConfig)
-    saq: SAQConfig = field(default_factory=SAQConfig)
     database: DatabaseConfig = field(default_factory=DatabaseConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
 

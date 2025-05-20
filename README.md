@@ -60,3 +60,10 @@
 - multiconnection (? - multiaccounts)
 - jwt - oauth 2 / fastapi security
 - unittests
+
+
+[[./docs/database_schema.png]]
+
+## References
+()[https://github.com/nsidnev/fastapi-realworld-example-app]
+()

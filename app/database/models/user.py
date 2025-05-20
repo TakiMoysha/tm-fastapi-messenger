@@ -1,5 +1,3 @@
-from typing import TYPE_CHECKING
-
 from advanced_alchemy.base import UUIDAuditBase
 from sqlalchemy import String
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -23,6 +21,10 @@ class UserModel(UUIDAuditBase):
     Attributes:
         id:
 
+        email:
+        hashed_password:
+        is_superuser:
+
         created_at:
         updated_at:
     """
@@ -39,9 +41,8 @@ class UserModel(UUIDAuditBase):
 
     chats: Mapped[list["ChatModel"]] = relationship(
         back_populates="creator",
-        lazy="joined",
-        innerjoin=True,
-        uselist=True,
+        # lazy="joined",
+        # innerjoin=True,
     )
     sent_messages: Mapped[list["ChatMessageModel"]] = relationship(
         back_populates="sender",

@@ -6,12 +6,27 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
+from app.config.base import get_config
+from app.domain.protocols import IPasswordHasher
 from app.exceptions import PermissionDeniedException
 from app.lib.cache import ICache
+from app.lib.password_hasher import Argon2PasswordHasher
 from app.server.plugins import alchemy, oauth2_schema
 from app.domain.accounts.services import AccountService
 
+config = get_config()
+
 # =====================================================================================================
+
+
+def provide_password_hasher() -> IPasswordHasher:
+    _algo = config.server.algorithm.lower()
+    if _algo != "argon2":
+        raise NotImplementedError(f"Algorithm {config.server.algorithm} is not supported, u can use: ['argon2']")
+    return Argon2PasswordHasher(salt=config.server.secret_key, algorithm=_algo)
+
+
+DepPasswordHasher = Annotated[IPasswordHasher, Depends(provide_password_hasher)]
 
 
 # =====================================================================================================
