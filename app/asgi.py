@@ -1,5 +1,7 @@
 from logging import getLogger
 
+from app.server.plugins import setup_cache
+
 
 logger = getLogger(__name__)
 
@@ -35,6 +37,7 @@ def create_asgi():
 
     setup_alchemy(app)
     setup_logging(app)
+    setup_cache(app)
 
     app.include_router(root_router)
 

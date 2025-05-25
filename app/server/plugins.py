@@ -1,7 +1,7 @@
-from logging import getLogger
+from logging import Logger, getLogger
+
 from advanced_alchemy.extensions.fastapi import AdvancedAlchemy
 from fastapi import FastAPI
-from fastapi.security import OAuth2PasswordBearer
 
 from app.config.plugins import SQLALCHEMY_CONFIG
 
@@ -24,6 +24,7 @@ def setup_alchemy(app: FastAPI):
 
 def setup_logging(app: FastAPI):
     import logging.config
+
     from app.config.plugins import LOGGING_CONFIG
 
     logger.info("Plugin:Logging")
@@ -33,13 +34,9 @@ def setup_logging(app: FastAPI):
 # =================================================
 
 
-oauth2_schema = OAuth2PasswordBearer(tokenUrl="/api/auth/token")
-
-# =================================================
-
-
-def setup_cache():
-    from app.lib.cache import InMemoryCache
+def setup_cache(app: FastAPI):
+    from app.lib.cache import OnlyDevInMemoryCache
 
     logger.info("Plugin:Cache")
-    return InMemoryCache()
+    app.state.cache = OnlyDevInMemoryCache()
+    return app.state.cache

@@ -24,3 +24,8 @@ class UserCreateSchema(BaseSchema):
 class AccountCredentialsSchema(BaseSchema):
     email: EmailStr
     password: str
+
+
+class TokenData(BaseSchema):
+    id: UUID
+    email: EmailStr

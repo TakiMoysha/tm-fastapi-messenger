@@ -9,7 +9,7 @@ from app.helpers import ws_manager
 from app.lib.websockets import ws_heartbeat
 
 logger = getLogger(__name__)
-router = APIRouter()
+router = APIRouter(tags=["resources"])
 
 
 @router.websocket("/ws/chats/{chat_id}")
@@ -36,7 +36,6 @@ async def websocket_endpoint(
 @router.get(
     "/api/chats/{chat_id}/hisitory",
     status_code=status.HTTP_200_OK,
-    tags=["health"],
 )
 async def health_get(
     auth_token: DepAuthToken,

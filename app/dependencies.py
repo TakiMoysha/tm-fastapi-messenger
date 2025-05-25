@@ -1,18 +1,20 @@
 from typing import Annotated
 
 from advanced_alchemy.extensions.fastapi import AdvancedAlchemy
-from fastapi import Depends, Request
+from fastapi import Depends, Request, Response
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
-
 from app.config.base import get_config
-from app.domain.protocols import IPasswordHasher
-from app.exceptions import PermissionDeniedException
+from app.database.models.user import UserModel
+from app.domain.accounts.services import AccountService
+from app.domain.protocols import IAuthenticationStrategy, IPasswordHasher
+from app.exceptions import PermissionDeniedError
+from app.lib.strategies import JWTAuthenticationStrategy
 from app.lib.cache import ICache
 from app.lib.password_hasher import Argon2PasswordHasher
-from app.server.plugins import alchemy, oauth2_schema
-from app.domain.accounts.services import AccountService
+from app.server.plugins import alchemy
+from app.urls import URL_ACCOUNT_SIGN_IN, URL_ACCOUNT_TOKEN
 
 config = get_config()
 
@@ -20,9 +22,9 @@ config = get_config()
 
 
 def provide_password_hasher() -> IPasswordHasher:
-    _algo = config.server.algorithm.lower()
+    _algo = config.server.password_algorithm.lower()
     if _algo != "argon2":
-        raise NotImplementedError(f"Algorithm {config.server.algorithm} is not supported, u can use: ['argon2']")
+        raise NotImplementedError(f"Algorithm {config.server.password_algorithm} is not supported, u can use: ['argon2']")
     return Argon2PasswordHasher(salt=config.server.secret_key, algorithm=_algo)
 
 
@@ -30,17 +32,48 @@ DepPasswordHasher = Annotated[IPasswordHasher, Depends(provide_password_hasher)]
 
 
 # =====================================================================================================
+oauth2_schema = OAuth2PasswordBearer(tokenUrl=URL_ACCOUNT_SIGN_IN, auto_error=False)
 
 
-async def get_protect_current_user(token: str = Depends(oauth2_schema)):
-    if token != "demo-token":
-        raise PermissionDeniedException
-
-    return {"user": None, "token": token}
-
+from fastapi.security import OAuth2PasswordRequestForm
 
 DepAuthToken = Annotated[OAuth2PasswordBearer, Depends(oauth2_schema)]
-DepProtectUserAccess = Annotated[str, Depends(get_protect_current_user)]
+
+# def get_current_active_user(fake_db):
+#     credentials_exception = HTTPException(
+#         status_code=status.HTTP_401_UNAUTHORIZED,
+#         detail="Could not validate credentials",
+#         headers={"WWW-Authenticate": "Bearer"},
+#     )
+#     try:
+#         payload = jwt.decode(Depends(oauth2_scheme), SECRET_KEY, algorithms=[ALGORITHM])
+#         username: str = payload.get("sub")
+#         if username is None:
+#             raise credentials_exception
+#         token_data = TokenData(username=username)
+#     except JWTError:
+#         raise credentials_exception
+#     user = get_user(fake_db, username=token_data.username)
+#     if user is None:
+#         raise credentials_exception
+#     return user
+
+
+# async def get_current_user(form_data: OAuth2PasswordRequestForm = Depends(OAuth2PasswordRequestForm)):
+#     # Replace username with email in your authentication logic
+#     user = await retrieve_user_by_email(form_data.username)
+#     if not user or not verify_password(user.hashed_password, form_data.password):
+#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")j
+#     return user
+
+async def get_current_user(token: str = Depends(oauth2_schema)) -> UserModel | None:
+    if token != "demo-token":
+        raise PermissionDeniedError
+
+    return None
+
+
+DepCurrentUser = Annotated[UserModel | None, Depends(get_current_user)]
 
 # =====================================================================================================
 
@@ -73,16 +106,17 @@ DepAlchemySession = Annotated[AsyncSession, Depends(provide_async_session)]
 
 # =====================================================================================================
 
-# from typing import AsyncGenerator
-
-# from app.domain.accounts.services import AccountService
-
-
-# async def provide_accounts_service(db_session: DepsAlchemySession) -> AsyncGenerator[AccountService, None]:
-#     async with AccountService.new(session=db_session) as service:
-#         yield service
+DepAccountService = Annotated[
+    AccountService,
+    Depends(alchemy.provide_service(AccountService)),
+]
 
 
-DepAccountService = Annotated[AccountService, Depends(alchemy.provide_service(AccountService))]
+def provide_jwt_authentication_strategy(response: Response, storage: DepStateCache) -> JWTAuthenticationStrategy:
+    return JWTAuthenticationStrategy(response=response, storage=storage)
 
-# DatabaseSession = Annotated[AsyncSession, Depends(get_alchemy().get_async_session())]
+
+DepAuthenticationDefaultStrategy = Annotated[
+    IAuthenticationStrategy,
+    Depends(provide_jwt_authentication_strategy),
+]

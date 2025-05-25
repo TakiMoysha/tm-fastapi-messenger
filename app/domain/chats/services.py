@@ -5,7 +5,7 @@ from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService, SQLAlchem
 from fastapi import status
 
 from app.database.models.chat import ChatModel
-from app.exceptions import PermissionDeniedException, WorkInProgressException
+from app.exceptions import PermissionDeniedError, WorkInProgressError
 
 EXC_ = ""
 
