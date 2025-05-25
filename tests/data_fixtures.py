@@ -11,46 +11,40 @@ from app.database.models import (
 
 pytestmark = pytest.mark.asyncio
 
+type TUser = UserModel | dict
+
+
+@pytest.fixture(name="auth_user", scope="package")
+def fx_auth_user(faker: Faker) -> TUser:
+    return {
+        "id": faker.uuid4(),
+        "email": faker.email(),
+        "_password": faker.password(),
+        "hashed_password": None,
+        "is_superuser": False,
+        "created_at": faker.date_time().astimezone(),
+        "updated_at": faker.date_time().astimezone(),
+    }
+
+
+@pytest.fixture(name="auth_superuser", scope="package")
+def fx_auth_superuser(faker: Faker) -> TUser:
+    return {
+        "id": faker.uuid4(),
+        "email": faker.email(),
+        "_password": faker.password(),
+        "hashed_password": None,
+        "is_superuser": True,
+        "created_at": faker.date_time().astimezone(),
+        "updated_at": faker.date_time().astimezone(),
+    }
+
 
 @pytest.fixture(name="raw_users", scope="package")
-def fx_raw_users(faker: Faker) -> list[UserModel | dict]:
+def fx_raw_users(faker: Faker, auth_user: UserModel, auth_superuser: UserModel) -> list[TUser]:
     return [
-        {
-            "id": "5f950b68-204e-4dc8-bc1d-3d29d90f7050",
-            "email": "samuelgarcia@example.org",
-            "_password": "test_1",
-            "hashed_password": None,
-            "is_superuser": False,
-            "created_at": faker.date_time().astimezone(),
-            "updated_at": faker.date_time().astimezone(),
-        },
-        {
-            "id": "5f2635b4-6890-43de-ad9e-46d52ea9237a",
-            "email": "jonedwards@example.org",
-            "_password": "test_1",
-            "hashed_password": None,
-            "is_superuser": False,
-            "created_at": faker.date_time().astimezone(),
-            "updated_at": faker.date_time().astimezone(),
-        },
-        {
-            "id": "c50f8da6-3197-41d4-8283-bb49fc1a05ef",
-            "email": "hayeschristina@example.net",
-            "_password": "test_1",
-            "hashed_password": None,
-            "is_superuser": False,
-            "created_at": faker.date_time().astimezone(),
-            "updated_at": faker.date_time().astimezone(),
-        },
-        {
-            "id": "cc904e60-a40f-4594-aee6-01aee5bb26e3",
-            "email": "patrickwest@example.com",
-            "_password": "test_1",
-            "hashed_password": None,
-            "is_superuser": False,
-            "created_at": faker.date_time().astimezone(),
-            "updated_at": faker.date_time().astimezone(),
-        },
+        auth_user,
+        auth_superuser,
         {
             "id": "ddae0eb3-81ab-4fed-aa08-4fc98554d399",
             "email": "lisamoses@example.net",
@@ -81,17 +75,19 @@ def fx_raw_users(faker: Faker) -> list[UserModel | dict]:
     ]
 
 
-# dump data
 @pytest.fixture(name="raw_chats", scope="package")
-def fx_raw_chats(faker: Faker) -> list[ChatModel | dict]:
+def fx_raw_chats(faker: Faker, auth_user: TUser, auth_superuser: TUser) -> list[ChatModel | dict]:
     return [
         # {
-        #     "title": "test chat 1",
-        #     "creator_id": "ac1f5e38-7301-4a3c-beef-f7cba29560d7",
+        #     "id": faker.uuid4(),
+        #     "creator_id": auth_user["id"] if isinstance(auth_user, dict) else getattr(auth_user, "id"),
+        #     "group_id": faker.uuid4(),
+        #     "created_at": faker.date_time().astimezone(),
+        #     "updated_at": faker.date_time().astimezone(),
         # }
     ]
 
 
 @pytest.fixture(name="raw_groups", scope="package")
-def fx_raw_groups(faker: Faker) -> list[ChatGroupModel | dict]:
+def fx_raw_groups(faker: Faker, auth_user: TUser, auth_superuser: TUser) -> list[ChatGroupModel | dict]:
     return []

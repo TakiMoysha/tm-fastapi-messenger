@@ -11,10 +11,6 @@ def pytest_configure(config):
         "markers",
         "slow: mark test as slow to run",
     )
-    config.addinivalue_line(
-        "markers",
-        "require_local_db: mark test requires local database",
-    )
 
 
 @pytest.fixture(name="faker", scope="session")

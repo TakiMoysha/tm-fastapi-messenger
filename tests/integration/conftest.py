@@ -1,6 +1,7 @@
 from logging import getLogger
 from typing import AsyncGenerator, Generator
 
+from fastapi import FastAPI
 import pytest
 import pytest_asyncio
 from advanced_alchemy.base import orm_registry
@@ -17,6 +18,12 @@ from app.domain.chats.services import ChatService
 from app.lib.password_hasher import Argon2PasswordHasher
 
 logger = getLogger(__name__)
+
+
+@pytest.fixture(name="client", scope="class")
+def fx_app() -> Generator[TestClient, None, None]:
+    with TestClient(create_asgi()) as client:
+        yield client
 
 
 @pytest.fixture(name="engine", scope="package")
