@@ -8,7 +8,7 @@ class ICache(Protocol):
     def delete(self, key): ...
 
 
-class InMemoryCache:
+class OnlyDevInMemoryCache(ICache):
     def __init__(self):
         self.cache = {}
 

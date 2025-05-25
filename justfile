@@ -7,6 +7,12 @@ server *ARGS:
   DB_DEV=True \
   uv run fastapi dev --reload {{ ARGS }}
 
+# ex: just stage --workers 2
+stage *ARGS:
+  DB_DEV=True \
+  uv run uvicorn app.main:application --host 0.0.0.0 --port 8000 {{ ARGS }}
+
+
 # ex: just fastapi prepare_db
 fastapi *ARGS:
   uv run fastapi {{ ARGS }}

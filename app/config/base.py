@@ -19,8 +19,10 @@ class ServerConfig:
     testing: bool = field(default_factory=lambda: get_upcast_env("SERVER_TESTING", False))
 
     secret_key: str = field(default_factory=lambda: get_upcast_env("SERVER_SECRET_KEY", "_dont_expose_me_"), repr=False, hash=False)  # fmt: skip
-    algorithm: str = field(default_factory=lambda: get_upcast_env("SERVER_ALGORITHM", "argon2"), repr=False, hash=False)  # fmt: skip
     access_token_expire_minutes: int = field(default_factory=lambda: get_upcast_env("SERVER_ACCESS_TOKEN_EXPIRE_MINUTES", 30))  # fmt: skip
+    password_algorithm: str = field(default_factory=lambda: get_upcast_env("SERVER_PASSWORD_ALGORITHM", "argon2"), repr=False, hash=False)  # fmt: skip
+    token_algorithm: str = field(default_factory=lambda: get_upcast_env("SERVER_TOKEN_ALGORITHM", "HS256"), repr=False, hash=False)  # fmt: skip
+
     ws_heartbeat_timeout: int = field(default_factory=lambda: get_upcast_env("SERVER_WS_HEARTBEAT_TIMEOUT", 10))  # fmt: skip
 
     cors_origins: list[str] = field(

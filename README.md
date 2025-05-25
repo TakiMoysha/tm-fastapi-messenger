@@ -3,6 +3,8 @@
 **Gimmics**:
 
 - WAL (PostgreSQL) for messages;
+- keycloak for authentication & authorization;
+- RS256 (asymmetric) for encrypting messages;
 
 **Stack**:
 
@@ -61,9 +63,9 @@
 - jwt - oauth 2 / fastapi security
 - unittests
 
-
 [[./docs/database_schema.png]]
 
 ## References
+
+()[https://github.com/amirhosss/FastAPI-RS256-MongoDB-Redis]
 ()[https://github.com/nsidnev/fastapi-realworld-example-app]
-()
