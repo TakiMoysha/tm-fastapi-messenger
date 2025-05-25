@@ -16,6 +16,8 @@ from typing import Self
 
 import psycopg
 from psycopg.errors import DuplicateDatabase, DuplicateObject
+from psycopg import sql
+from psycopg.sql import SQL, Composed
 
 
 @dataclass
@@ -29,19 +31,22 @@ class DatabaseConfig:
         try:
             username, password, database = value.split(":")
         except ValueError as err:
-            msg = f"Invalid database config format. Expected 'username:password:db_name' but got {value}"  # fmt: skip
+            msg = f"Invalid database config format. Expected 'username:password:db_name' but got {value}"
             raise argparse.ArgumentTypeError(msg) from err
         return cls(username, database, password)
 
 
 def database_setup(config: DatabaseConfig, connection_url: str):
-    SQL_CREATE_DB = f"CREATE DATABASE {config.database};"  # fmt: skip
-    SQL_CREATE_USER = f"CREATE USER {config.username} WITH PASSWORD '{config.password}';"  # fmt: skip
-    SQL_GRANT_PRIVILEGES = f"GRANT ALL PRIVILEGES ON DATABASE {config.database} TO {config.username};"  # fmt: skip
-    # SQL_GRANT_SCHEMA_PRIVILEGES = f"GRANT ALL ON SCHEMA public TO {config.username};"  # fmt: skip
-    SQL_ALTER_OWNER = f"ALTER DATABASE {config.database} OWNER TO {config.username};"  # fmt: skip
+    username = sql.Identifier(config.username)
+    db_name = sql.Identifier(config.database)
 
-    def _autocommit_exec(conn, sql: str):
+    SQL_CREATE_DB = SQL("CREATE DATABASE {}").format(db_name)
+    SQL_CREATE_USER = SQL("CREATE USER {} WITH PASSWORD {}").format(username, config.password)
+    SQL_GRANT_PRIVILEGES = SQL("GRANT ALL PRIVILEGES ON DATABASE {} TO {}").format(db_name, username)
+    SQL_GRANT_SCHEMA_PRIVILEGES = SQL("GRANT ALL ON SCHEMA public TO {}").format(username)
+    SQL_ALTER_OWNER = SQL("ALTER DATABASE {} OWNER TO {}").format(db_name, username)
+
+    def _autocommit_exec(conn: psycopg.Connection, sql: SQL | Composed):
         conn.autocommit = True
         try:
             conn.execute(sql)
@@ -63,7 +68,7 @@ def database_setup(config: DatabaseConfig, connection_url: str):
         with psycopg.connect(db_url) as conn:
             with conn.cursor() as cur:
                 cur.execute(SQL_GRANT_PRIVILEGES)
-                # cur.execute(SQL_GRANT_SCHEMA_PRIVILEGES)
+                cur.execute(SQL_GRANT_SCHEMA_PRIVILEGES)
                 cur.execute(SQL_ALTER_OWNER)
     except psycopg.errors.OperationalError as e:
         print(f"Error: {e}, exit with code 1")
