@@ -5,8 +5,8 @@ from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService
 from starlette import status
 
 from app.database.models.user import UserModel
-from app.domain.protocols import IAuthenticationStrategy, IPasswordHasher
-from app.exceptions import PermissionDeniedError
+from app.domain.protocols import IAuthenticationStrategy, IAuthorizationStrategy, IPasswordHasher
+from app.exceptions import BaseAppError, PermissionDeniedError
 from app.lib.password_hasher import Argon2PasswordHasher
 
 EXC_PREVENT_LOGIN = "User not found or credentials are wrong"
@@ -32,7 +32,8 @@ class AccountService(SQLAlchemyAsyncRepositoryService[UserModel]):
         email: str,
         password: str,
         *,
-        auth_strategy: IAuthenticationStrategy,
+        authenticate_strategy: IAuthenticationStrategy | None = None,
+        authorize_strategy: IAuthorizationStrategy | None = None,
     ) -> dict:
         """"""
         logger.info(f"sign_in: <{email}>")
@@ -46,7 +47,14 @@ class AccountService(SQLAlchemyAsyncRepositoryService[UserModel]):
             raise PermissionDeniedError(status.HTTP_403_FORBIDDEN, EXC_PREVENT_LOGIN)
 
         logger.info(f"sign_in authenticate: <{obj}>")
-        auth_result = await auth_strategy.authenticate(user=obj)
+        auth_result = await authenticate_strategy.authenticate(user=obj)
+
+        if authorize_strategy is not None:
+            try:
+                authorize_strategy.authorize("anon", "sign-in", None)
+            except BaseAppError:
+                raise PermissionDeniedError(status.HTTP_403_FORBIDDEN, EXC_PREVENT_LOGIN)
+
         return { "user": obj, "authenticate": auth_result }
 
     async def sign_up(
@@ -54,7 +62,8 @@ class AccountService(SQLAlchemyAsyncRepositoryService[UserModel]):
         email: str,
         password: str,
         *,
-        auth_strategy: IAuthenticationStrategy,
+        authenticate_strategy: IAuthenticationStrategy | None,
+        authorize_strategy: IAuthorizationStrategy | None = None,
     ) -> UserModel:
         """Create new account for user."""
         obj = await self.get_one_or_none(email=email)
@@ -72,7 +81,8 @@ class AccountService(SQLAlchemyAsyncRepositoryService[UserModel]):
         self,
         current_user: UserModel,
         *,
-        auth_strategy: IAuthenticationStrategy,
+        authenticate_strategy: IAuthenticationStrategy,
+        authorize_strategy: IAuthorizationStrategy | None = None,
     ):
         """"""
         raise NotImplementedError

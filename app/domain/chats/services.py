@@ -1,11 +1,9 @@
 from logging import getLogger
 
 from advanced_alchemy.repository import SQLAlchemyAsyncRepository
-from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService, SQLAlchemyAsyncQueryService
-from fastapi import status
+from advanced_alchemy.service import SQLAlchemyAsyncRepositoryService
 
 from app.database.models.chat import ChatModel
-from app.exceptions import PermissionDeniedError, WorkInProgressError
 
 EXC_ = ""
 

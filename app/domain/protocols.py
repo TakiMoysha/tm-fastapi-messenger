@@ -26,3 +26,9 @@ class IAuthenticationStrategy(Protocol):
     async def sign_out(self, user: ModelProtocol, *args, **kwargs) -> TAuthResult:
         """Called when the user signs out"""
         ...
+
+
+@runtime_checkable
+class IAuthorizationStrategy(Protocol):
+    def __init__(self, *args, **kwargs) -> None: ...
+    def authorize(self, object, action, subject, *args, **kwargs): ...

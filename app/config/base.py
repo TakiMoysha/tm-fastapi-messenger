@@ -15,6 +15,8 @@ APP_HOME: Final[Path] = Path(get_upcast_env("APP_HOME", "app")).absolute()
 
 @dataclass
 class ServerConfig:
+    title: str = "messenger"
+
     debug: bool = field(default_factory=lambda: get_upcast_env("SERVER_DEBUG", False))
     testing: bool = field(default_factory=lambda: get_upcast_env("SERVER_TESTING", False))
 

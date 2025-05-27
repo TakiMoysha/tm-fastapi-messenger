@@ -1,8 +1,8 @@
 from typing import Annotated
 
 from advanced_alchemy.extensions.fastapi import AdvancedAlchemy
-from fastapi import Depends, Request, Response
-from fastapi.security import OAuth2PasswordBearer
+from fastapi import Depends, Request, Response, Security
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.base import get_config
@@ -10,11 +10,11 @@ from app.database.models.user import UserModel
 from app.domain.accounts.services import AccountService
 from app.domain.protocols import IAuthenticationStrategy, IPasswordHasher
 from app.exceptions import PermissionDeniedError
-from app.lib.strategies import JWTAuthenticationStrategy
 from app.lib.cache import ICache
 from app.lib.password_hasher import Argon2PasswordHasher
+from app.lib.security import oauth2_default_security
+from app.lib.strategies import JWTAuthenticationStrategy
 from app.server.plugins import alchemy
-from app.urls import URL_ACCOUNT_SIGN_IN, URL_ACCOUNT_TOKEN
 
 config = get_config()
 
@@ -24,7 +24,9 @@ config = get_config()
 def provide_password_hasher() -> IPasswordHasher:
     _algo = config.server.password_algorithm.lower()
     if _algo != "argon2":
-        raise NotImplementedError(f"Algorithm {config.server.password_algorithm} is not supported, u can use: ['argon2']")
+        raise NotImplementedError(
+            f"Algorithm {config.server.password_algorithm} is not supported, u can use: ['argon2']"
+        )
     return Argon2PasswordHasher(salt=config.server.secret_key, algorithm=_algo)
 
 
@@ -32,12 +34,10 @@ DepPasswordHasher = Annotated[IPasswordHasher, Depends(provide_password_hasher)]
 
 
 # =====================================================================================================
-oauth2_schema = OAuth2PasswordBearer(tokenUrl=URL_ACCOUNT_SIGN_IN, auto_error=False)
 
 
-from fastapi.security import OAuth2PasswordRequestForm
+DepAuthToken = Annotated[OAuth2PasswordRequestForm, Depends(oauth2_default_security)]
 
-DepAuthToken = Annotated[OAuth2PasswordBearer, Depends(oauth2_schema)]
 
 # def get_current_active_user(fake_db):
 #     credentials_exception = HTTPException(
@@ -66,14 +66,16 @@ DepAuthToken = Annotated[OAuth2PasswordBearer, Depends(oauth2_schema)]
 #         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Incorrect email or password")j
 #     return user
 
-async def get_current_user(token: str = Depends(oauth2_schema)) -> UserModel | None:
-    if token != "demo-token":
+
+async def get_current_user(token: str = Depends(oauth2_default_security)) -> UserModel | None:
+    if token != "1":
         raise PermissionDeniedError
 
     return None
 
 
 DepCurrentUser = Annotated[UserModel | None, Depends(get_current_user)]
+
 
 # =====================================================================================================
 
@@ -112,11 +114,22 @@ DepAccountService = Annotated[
 ]
 
 
-def provide_jwt_authentication_strategy(response: Response, storage: DepStateCache) -> JWTAuthenticationStrategy:
-    return JWTAuthenticationStrategy(response=response, storage=storage)
+def provide_jwt_authentication_strategy(
+    request: Request,
+    response: Response,
+    storage: DepStateCache,
+) -> JWTAuthenticationStrategy:
+    return JWTAuthenticationStrategy(request=request, response=response, storage=storage)
 
 
 DepAuthenticationDefaultStrategy = Annotated[
     IAuthenticationStrategy,
     Depends(provide_jwt_authentication_strategy),
 ]
+
+
+def provide_authorization_strategy(request: Request, response: Response, storage: DepStateCache) -> None:
+    pass
+
+
+DepAuthorizationDefaultStrategy = Annotated[None, Depends(provide_authorization_strategy)]

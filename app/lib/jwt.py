@@ -1,65 +1,71 @@
-from datetime import datetime
-from enum import Enum
-from typing import Literal
+from datetime import UTC, datetime, timedelta
+from logging import getLogger
+from typing import Literal, Self
 from uuid import UUID
 
-from fastapi import Cookie, Depends
-from fastapi.security import HTTPBearer
-from starlette import status
+import jwt
+from pydantic import field_serializer
+from app.config.base import get_config
+from app.config.consts import ACCESS_TOKEN_EXPIRE_MINUTES
 from app.domain.base.schemas import BaseSchema
-from app.exceptions import BaseAppError
+from app.exceptions import PermissionDeniedError
 
-token_security = HTTPBearer(auto_error=False)
+config = get_config()
+logger = getLogger(__name__)
 
-# =========================================================
 
-
-# =========================================================
-class JWTAuthenticateTokenSchema(BaseSchema):
+class JWTTokenSchema(BaseSchema):
     access_token: str
-    token_type: Literal["bearer"] = "bearer"
+    refresh_token: str
+    type_token: Literal["bearer"] = "bearer"
 
 
-class JWTAuthenticateTokenPayloadSchema(BaseSchema):
-    sub: str
-    aud: str
-    exp: datetime
+class JWTTokenPayloadSchema(BaseSchema):
     jti: UUID
+    sub: str
+    exp: datetime
+
+    @field_serializer("exp")
+    def serialize_exp(self, value: datetime) -> int:
+        return int(value.timestamp())
+
+    @classmethod
+    def from_dict(
+        cls,
+        sub: str,
+        jti: UUID,
+        exp: datetime | None = None,
+        expires_delta: timedelta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+    ) -> Self:
+        if exp is not None:
+            expire_time = exp
+        else:
+            expire_time = datetime.now(UTC) + expires_delta
+
+        return cls(sub=sub, exp=expire_time, jti=jti)
 
 
-# =========================================================
+def create_jwt_token(
+    payload: JWTTokenPayloadSchema,
+    *,
+    secret: str = config.server.secret_key,
+    algorithm: str = config.server.token_algorithm,
+):
+    return jwt.encode(payload.model_dump(mode="json"), secret, algorithm=algorithm)
 
 
-class TokenType(Enum):
-    ACCESS = "access"
-    REFRESH = "refresh"
+def verify_token(
+    token: str,
+    *,
+    secret: str = config.server.secret_key,
+    algorithm: str = config.server.token_algorithm,
+):
+    try:
+        payload = jwt.decode(token, secret, algorithms=[algorithm])
+    except jwt.ExpiredSignatureError as err:
+        raise PermissionDeniedError(detail="Token expired") from err
+    except jwt.InvalidTokenError as err:
+        raise PermissionDeniedError(detail="Invalid token") from err
 
-
-class TokenRequired:
-    def __init__(self, token_type: TokenType):
-        self._token_type = token_type
-
-    def __call__(
-        self,
-        credentials=Depends(token_security),
-        access_token: str | None = Cookie(None),
-        refresh_token: str | None = Cookie(None),
-    ):
-        if credentials:
-            return credentials.credentials
-
-        if access_token and self._token_type == TokenType.ACCESS:
-            return access_token
-
-        if refresh_token and self._token_type == TokenType.REFRESH:
-            return refresh_token
-
-        raise BaseAppError(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Not authenticated",
-            headers={"WWW-Authenticate": "Bearer"},
-        )
-
-
-access_token_required = TokenRequired(TokenType.ACCESS)
-refresh_token_required = TokenRequired(TokenType.REFRESH)
+    logger.debug(f"{payload=}")
+    return JWTTokenPayloadSchema.model_validate(payload)

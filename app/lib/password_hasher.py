@@ -3,7 +3,6 @@ from app.domain.protocols import IPasswordHasher
 
 from typing import Literal
 from passlib.context import CryptContext
-from passlib.hash import argon2
 
 
 logger = getLogger(__name__)

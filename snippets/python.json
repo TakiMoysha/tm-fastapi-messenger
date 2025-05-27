@@ -1,0 +1,24 @@
+{
+  "load config and logger": {
+    "prefix": ["appfile", "init-appfile"],
+    "body": [
+      "from logging import getLogger",
+      "app.config.base import get_config",
+      "",
+      "config = get_config()",
+      "logger = getLogger(__name__)"
+    ]
+  },
+  "load config, pytest and logger": {
+    "prefix": ["testfile", "init-testfile"],
+    "body": [
+      "import pytest",
+      "from logging import getLogger",
+      "from app.config.base import get_config",
+      "",
+      "config = get_config()",
+      "logger = getLogger(__name__)",
+      "pytestmark = pytest.mark.asyncio"
+    ]
+  }
+}

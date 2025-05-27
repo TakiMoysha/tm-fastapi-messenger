@@ -5,6 +5,7 @@
 - WAL (PostgreSQL) for messages;
 - keycloak for authentication & authorization;
 - RS256 (asymmetric) for encrypting messages;
+- store refresh_tokens in database (max 5 refresh_tokens per user)
 
 **Stack**:
 
@@ -67,5 +68,6 @@
 
 ## References
 
-()[https://github.com/amirhosss/FastAPI-RS256-MongoDB-Redis]
-()[https://github.com/nsidnev/fastapi-realworld-example-app]
+(/ github.com)[https://github.com/amirhosss/FastAPI-RS256-MongoDB-Redis]
+(/ github.com)[https://github.com/nsidnev/fastapi-realworld-example-app]
+(/ github.com)[https://gist.github.com/zmts/802dc9c3510d79fd40f9dc38a12bccfc]
