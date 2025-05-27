@@ -11,11 +11,11 @@ from app.database.models import (
 
 pytestmark = pytest.mark.asyncio
 
-type TUser = UserModel | dict
+type TTestUser = UserModel | dict
 
 
 @pytest.fixture(name="auth_user", scope="package")
-def fx_auth_user(faker: Faker) -> TUser:
+def fx_auth_user(faker: Faker) -> TTestUser:
     return {
         "id": faker.uuid4(),
         "email": faker.email(),
@@ -28,7 +28,7 @@ def fx_auth_user(faker: Faker) -> TUser:
 
 
 @pytest.fixture(name="auth_superuser", scope="package")
-def fx_auth_superuser(faker: Faker) -> TUser:
+def fx_auth_superuser(faker: Faker) -> TTestUser:
     return {
         "id": faker.uuid4(),
         "email": faker.email(),
@@ -41,7 +41,7 @@ def fx_auth_superuser(faker: Faker) -> TUser:
 
 
 @pytest.fixture(name="raw_users", scope="package")
-def fx_raw_users(faker: Faker, auth_user: UserModel, auth_superuser: UserModel) -> list[TUser]:
+def fx_raw_users(faker: Faker, auth_user: UserModel, auth_superuser: UserModel) -> list[TTestUser]:
     return [
         auth_user,
         auth_superuser,
@@ -76,7 +76,7 @@ def fx_raw_users(faker: Faker, auth_user: UserModel, auth_superuser: UserModel) 
 
 
 @pytest.fixture(name="raw_chats", scope="package")
-def fx_raw_chats(faker: Faker, auth_user: TUser, auth_superuser: TUser) -> list[ChatModel | dict]:
+def fx_raw_chats(faker: Faker, auth_user: TTestUser, auth_superuser: TTestUser) -> list[ChatModel | dict]:
     return [
         # {
         #     "id": faker.uuid4(),
@@ -89,5 +89,5 @@ def fx_raw_chats(faker: Faker, auth_user: TUser, auth_superuser: TUser) -> list[
 
 
 @pytest.fixture(name="raw_groups", scope="package")
-def fx_raw_groups(faker: Faker, auth_user: TUser, auth_superuser: TUser) -> list[ChatGroupModel | dict]:
+def fx_raw_groups(faker: Faker, auth_user: TTestUser, auth_superuser: TTestUser) -> list[ChatGroupModel | dict]:
     return []

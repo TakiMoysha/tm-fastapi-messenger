@@ -3,8 +3,8 @@ from faker import Faker
 
 from app.config.base import get_config
 
-pytest_plugins = ("tests.data_fixtures",)
 
+pytest_plugins = ("tests.user_fixtures",)
 
 def pytest_configure(config):
     config.addinivalue_line(

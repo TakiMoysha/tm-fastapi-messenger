@@ -1,13 +1,12 @@
 from logging import getLogger
 from typing import AsyncGenerator, Generator
 
-from fastapi import FastAPI
 import pytest
 import pytest_asyncio
 from advanced_alchemy.base import orm_registry
+from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker, create_async_engine
-from sqlalchemy.pool import StaticPool
+from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 
 from app.asgi import create_asgi
 from app.config.base import AppConfig
