@@ -9,7 +9,6 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
 from app.exceptions import ConfigException
 from app.lib.utils.upcast_env import get_upcast_env
-from app.lib.utils.logging import LoggingLoggerConfigFactory
 
 APP_HOME: Final[Path] = Path(get_upcast_env("APP_HOME", "app")).absolute()
 
@@ -115,12 +114,6 @@ class LoggingConfig:
     sqlalchemy_level: str = field(default_factory=lambda: get_upcast_env("LOGGING_SQLALCHEMY_LEVEL", "INFO"))
 
     not_interesting: str = field(default_factory=lambda: get_upcast_env("LOGGING_NOT_INTERESTING_LEVEL", "INFO"))
-
-    _factory: LoggingLoggerConfigFactory = LoggingLoggerConfigFactory()
-
-    @property
-    def get_logger_conf(self):
-        return self._factory.get_logger_config
 
 
 @dataclass
