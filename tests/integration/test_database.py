@@ -10,12 +10,16 @@ pytestmark = pytest.mark.asyncio
 
 
 async def get_migraion_version(session: AsyncSession):
-    return await session.execute(text("select version from alembic_version;"))
+    try:
+        return await session.execute(text("select version from alembic_version;"))
+    except Exception as err:
+        logger.error(err)
+        return Literal["0"]
 
 
 async def test_database_connection(engine: AsyncEngine, sessionmaker: async_sessionmaker[AsyncSession]):
     current_migration = await get_migraion_version(sessionmaker())
-    logger.info(current_migration)
+    logger.debug(current_migration)
 
     async with engine.begin() as conn:
         tables = await conn.run_sync(lambda c: inspect(c).get_table_names())

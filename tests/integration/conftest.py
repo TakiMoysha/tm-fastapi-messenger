@@ -74,9 +74,3 @@ async def _seed_db(
         await conn.run_sync(metadata.drop_all)
 
     await engine.dispose()
-
-
-@pytest.fixture(name="client")
-def fx_client() -> Generator[TestClient, None, None]:
-    with TestClient(create_asgi()) as client:
-        yield client

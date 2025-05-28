@@ -6,6 +6,7 @@
 - keycloak for authentication & authorization;
 - RS256 (asymmetric) for encrypting messages;
 - store refresh_tokens in database (max 5 refresh_tokens per user)
+- TRUNCATE tables in tests;
 
 **Stack**:
 

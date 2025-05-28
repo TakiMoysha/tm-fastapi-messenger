@@ -1,17 +1,14 @@
-import pytest
-
-from faker import Faker
 from logging import getLogger
 
+import pytest
+from faker import Faker
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.asgi import create_asgi
-from app.lib.password_hasher import Argon2PasswordHasher
-from app.urls import URL_ACCOUNT_SIGN_UP, URL_HEALTH
 from app.database.models.user import UserModel
 from app.domain.accounts.services import AccountService
-
+from app.lib.password_hasher import Argon2PasswordHasher
+from app.urls import URL_HEALTH
 
 _hasher = Argon2PasswordHasher()
 _faker = Faker()

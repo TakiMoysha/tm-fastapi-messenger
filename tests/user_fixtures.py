@@ -1,3 +1,4 @@
+from logging import getLogger
 import pytest
 from faker import Faker
 
@@ -8,7 +9,7 @@ from app.database.models import (
     ChatModel,
 )
 
-
+logger = getLogger(__name__)
 pytestmark = pytest.mark.asyncio
 
 type TTestUser = UserModel | dict
