@@ -13,7 +13,7 @@ LOGGING_CONFIG = {
     "formatters": {
         "default": {
             "()": "uvicorn.logging.DefaultFormatter",
-            "fmt": "%(asctime)s %(levelprefix)s <%(name)s>: %(message)s",
+            "fmt": "[%(asctime)s] %(levelprefix)s <%(name)s> %(message)s",
             "datefmt": "%Y-%m-%d %H:%M:%S",
         },
     },

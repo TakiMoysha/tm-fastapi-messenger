@@ -111,7 +111,7 @@ class LoggingConfig:
 
     saq_level: str = field(default_factory=lambda: get_upcast_env("LOGGING_SAQ_LEVEL", "INFO"))
 
-    sqlalchemy_level: str = field(default_factory=lambda: get_upcast_env("LOGGING_SQLALCHEMY_LEVEL", "INFO"))
+    sqlalchemy_level: str = field(default_factory=lambda: get_upcast_env("LOGGING_SQLALCHEMY_LEVEL", "WARN"))
 
     not_interesting: str = field(default_factory=lambda: get_upcast_env("LOGGING_NOT_INTERESTING_LEVEL", "INFO"))
 
