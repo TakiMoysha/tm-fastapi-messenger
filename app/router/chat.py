@@ -6,7 +6,7 @@ from fastapi.websockets import WebSocket
 
 from app.dependencies import DepAlchemySession, DepAuthToken, DepStateCache
 from app.helpers import ws_manager
-from app.lib.websockets import ws_heartbeat
+from app.lib.utils.websockets import ws_heartbeat
 
 logger = getLogger(__name__)
 router = APIRouter(tags=["resources"])

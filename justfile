@@ -28,10 +28,10 @@ alembic *ARGS:
   DB_DEV=True \
   uv run -m alembic -c {{ alembic_config }} {{ ARGS }}
 
-# ex: just test tests -v -s --show-capture=all --log-cli-level=INFO
+# ex: just test tests/integration -v -s --show-capture=all --log-cli-level=INFO
 test target="tests" *ARGS:
   SERVER_TESTING=true  \
   LOGGING_APP_LEVEL=DEBUG \
   DB_URL="sqlite+aiosqlite:///tmp/test.sqlite3" \
-  uv run pytest {{ target }} {{ ARGS }}
+  uv run pytest --disable-warnings {{ target }} {{ ARGS }}
 

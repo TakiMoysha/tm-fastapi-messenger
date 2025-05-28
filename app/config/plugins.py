@@ -22,26 +22,11 @@ LOGGING_CONFIG = {
         },
     },
     "loggers": {
-        "sqlalchemy.engine": {
-            "handlers": ["default"],
-            "level": config.logging.sqlalchemy_level,
-            "propagate": False,
-        },
-        "uvicorn.error": {
-            "handlers": ["default"],
-            "level": config.logging.uvicorn_error_level,
-            "propagate": False,
-        },
-        "uvicorn.access": {
-            "handlers": ["default"],
-            "level": config.logging.uvicorn_access_level,
-            "propagate": False,
-        },
-        "": {
-            "handlers": ["default"],
-            "level": config.logging.level,
-            "propagate": False,
-        },
+        "sqlalchemy.engine": config.logging.get_logger_conf(level=config.logging.sqlalchemy_level),
+        "uvicorn.error": config.logging.get_logger_conf(level=config.logging.uvicorn_error_level),
+        "uvicorn.access": config.logging.get_logger_conf(level=config.logging.uvicorn_access_level),
+        "aiosqlite": config.logging.get_logger_conf(level=config.logging.not_interesting),
+        "": config.logging.get_logger_conf(level=config.logging.level),
     },
 }
 
