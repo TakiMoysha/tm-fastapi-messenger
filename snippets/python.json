@@ -1,6 +1,9 @@
 {
   "load config and logger": {
-    "prefix": ["appfile", "init-appfile"],
+    "prefix": [
+      "appfile",
+      "init-appfile"
+    ],
     "body": [
       "from logging import getLogger",
       "app.config.base import get_config",
@@ -10,7 +13,10 @@
     ]
   },
   "load config, pytest and logger": {
-    "prefix": ["testfile", "init-testfile"],
+    "prefix": [
+      "testfile",
+      "init-testfile"
+    ],
     "body": [
       "import pytest",
       "from logging import getLogger",
