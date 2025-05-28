@@ -4,9 +4,8 @@ from fastapi import APIRouter, HTTPException, status
 from fastapi.security import SecurityScopes
 
 from app.dependencies import DepAlchemySession
-
 from app.lib.health import check_database
-from app.urls import URL_HEALTH
+from app.router.urls import URL_HEALTH
 
 logger = getLogger(__name__)
 router = APIRouter()

@@ -1,18 +1,18 @@
 from logging import getLogger
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Form, Security, status
+from fastapi import APIRouter, Form, status
 from fastapi.background import BackgroundTasks
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
 from pydantic import EmailStr
 from pydantic.types import SecretStr
 
-from app import urls
 from app import dependencies as deps
 from app.domain.base.schemas import BaseSchema
 from app.lib.jwt import JWTTokenSchema
 from app.lib.security import OAuth2SignInRequestForm
+from app.router import urls
 
 logger = getLogger(__name__)
 

@@ -4,7 +4,7 @@ from typing import Annotated
 from fastapi import Form
 from fastapi.security import OAuth2PasswordBearer
 from app.config.base import get_config
-from app.urls import URL_ACCOUNT_SIGN_IN
+from app.router.urls import URL_ACCOUNT_SIGN_IN
 
 config = get_config()
 logger = getLogger(__name__)

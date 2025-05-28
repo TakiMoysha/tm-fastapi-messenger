@@ -24,4 +24,3 @@ async def ws_manager(websocket: WebSocket, cache: ICache):
     finally:
         cache.delete(websocket.scope["session"])
         await websocket.close()
-
