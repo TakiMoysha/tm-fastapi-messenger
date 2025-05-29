@@ -21,9 +21,9 @@ class JWTTokenSchema(BaseSchema):
 
 
 class JWTTokenPayloadSchema(BaseSchema):
-    jti: UUID
-    sub: str
-    exp: datetime
+    jti: UUID  # user_id
+    exp: datetime  # expiration time
+    sub: str | None = None  # email - sensitive info
 
     @field_serializer("exp")
     def serialize_exp(self, value: datetime) -> int:
@@ -32,8 +32,8 @@ class JWTTokenPayloadSchema(BaseSchema):
     @classmethod
     def from_dict(
         cls,
-        sub: str,
         jti: UUID,
+        sub: str | None = None,
         exp: datetime | None = None,
         expires_delta: timedelta = timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
     ) -> Self:

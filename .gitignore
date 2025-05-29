@@ -10,3 +10,6 @@ wheels/
 .venv
 *.sqlite3
 *.sqlite
+# Certificates
+*.crt
+*.key

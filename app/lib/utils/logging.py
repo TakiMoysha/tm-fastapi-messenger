@@ -1,11 +1,11 @@
 def get_logger_config(
     level: str = "INFO",
     *,
-    handlers: list = ["default"],
+    handlers: list | None = None,
     propagate: bool = False,
 ):
     return {
-        "handlers": handlers,
+        "handlers": handlers or ["default"],
         "level": level,
         "propagate": propagate,
     }

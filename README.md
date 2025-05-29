@@ -8,6 +8,11 @@
 - store refresh_tokens in database (max 5 refresh_tokens per user)
 - TRUNCATE tables in tests;
 
+**Issues**:
+
+- overwrite default username:password oauth2 form (?)
+
+
 **Stack**:
 
 - Python (FastAPI, asyncio);

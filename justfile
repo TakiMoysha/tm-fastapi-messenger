@@ -4,7 +4,8 @@ alembic_config := "app/database/migrations/alembic.ini"
 
 # ex: just server --port 8000 --host 0.0.0.0 
 server *ARGS:
-  DB_DEV=True \
+  DB_DEV=true \
+  SERVER_DEBUG=true \
   LOGGING_APP_LEVEL=DEBUG \
   uv run fastapi dev --reload {{ ARGS }}
 
@@ -30,6 +31,7 @@ alembic *ARGS:
 
 # ex: just test tests/integration -v -s --show-capture=all --log-cli-level=INFO
 test target="tests" *ARGS:
+  SERVER_DEBUG=true \
   SERVER_TESTING=true  \
   LOGGING_APP_LEVEL=DEBUG \
   DB_URL="sqlite+aiosqlite:///tmp/test.sqlite3" \
