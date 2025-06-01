@@ -34,7 +34,7 @@ class UserModel(UUIDAuditBase):
     __pii_columns__ = {"email"}
 
     email: Mapped[str] = mapped_column(unique=True, index=True, nullable=False)
-    hashed_password: Mapped[str | None] = mapped_column(String(length=255), nullable=True, default=None)
+    hashed_password: Mapped[str | None] = mapped_column(String(length=255), nullable=True, default=None, deferred=True)
     is_superuser: Mapped[bool] = mapped_column(default=False, nullable=False)
 
     # ============================== Relationships
