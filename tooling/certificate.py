@@ -1,10 +1,10 @@
 #!.venv/bin/python
 """
 examples:
-    certificate.py -u user -q -t user:password:db_name
+    certificate.py
 
 required:
-    psycopg
+    cryptography
 """
 
 import os
@@ -49,8 +49,12 @@ def generate_selfsigned_cert(hostname, ip_addresses=None, key=None):
     return key, cert
 
 
-def main():
-    key, cert = generate_selfsigned_cert("localhost", ["127.0.0.1"])
+type THostname = str
+type TIpAddr = str
+
+
+def main(hostname: THostname, ip_addresses: list[TIpAddr]):
+    key, cert = generate_selfsigned_cert(hostname, ip_addresses)
 
     with open("tmp/server.key", "wb") as f:
         f.write(
@@ -83,14 +87,14 @@ if __name__ == "__main__":
     add_support_group(parser)
 
     parser.add_argument(
-        "hostname",
+        "--hostname",
         type=str,
         default="localhost",
         help="server hostname [default: localhost]",
     )
 
     parser.add_argument(
-        "ip_addresses",
+        "--ip_addresses",
         type=str,
         nargs="*",
         default="127.0.0.1",
@@ -99,5 +103,5 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
 
-    # main()
+    main(args.hostname, args.ip_addresses)
     print("done")
