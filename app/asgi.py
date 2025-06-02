@@ -13,9 +13,7 @@ def create_asgi():
 
     from app.__about__ import __version__
     from app.config import get_config
-    from app.router import root_router
     from app.server.lifespan import app_lifespan
-    from app.server.plugins import setup_logging, setup_alchemy
 
     config = get_config()
 
@@ -35,9 +33,16 @@ def create_asgi():
         ],
     )
 
+    from app.server.plugins import setup_logging
+    from app.server.plugins import setup_alchemy
+    from app.server.plugins import setup_file_storage
+
     setup_alchemy(app)
     setup_logging(app)
     setup_cache(app)
+    setup_file_storage(app)
+
+    from app.router import root_router
 
     app.include_router(root_router)
 

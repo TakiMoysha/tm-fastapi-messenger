@@ -1,4 +1,4 @@
-# !TODO: bootstrap, enums,
+# !TODO: bootstrap, enums, Literals
 
 import os
 from pathlib import Path

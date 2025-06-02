@@ -1,9 +1,12 @@
-from os import getenv
 from dataclasses import dataclass, field
 from functools import lru_cache
+from os import getenv
 from pathlib import Path
-from typing import Final
+from typing import Final, Literal
 
+import fsspec
+from s3fs import S3FileSystem
+from advanced_alchemy.types.file_object.backends.fsspec import FSSpecBackend
 from sqlalchemy import StaticPool
 from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 
@@ -11,6 +14,8 @@ from app.exceptions import ConfigException
 from app.lib.utils.upcast_env import get_upcast_env
 
 APP_HOME: Final[Path] = Path(get_upcast_env("APP_HOME", "app")).absolute()
+
+_storage_backend_type = Literal["s3", "local_store"]
 
 
 @dataclass
@@ -103,6 +108,48 @@ class DatabaseConfig:
 
 
 @dataclass
+class StorageConfig:
+    backend: _storage_backend_type = field(default_factory=lambda: get_upcast_env("STORAGE_BACKEND", "local_store"))  # type: ignore
+
+    s3_endpoint_url: str | None = field(default_factory=lambda: get_upcast_env("STORAGE_S3_ENDPOINT_URL", None))
+    s3_access_key: str | None = field(default_factory=lambda: get_upcast_env("STORAGE_S3_ACCESS_KEY", None), repr=False, hash=False)  # fmt: skip
+    s3_secret_key: str | None = field(default_factory=lambda: get_upcast_env("STORAGE_S3_SECRET_KEY", None), repr=False, hash=False)  # fmt: skip
+
+    @property
+    def key(self):
+        return f"key_{self.backend}"
+
+    def get_file_system(self):
+        match self.backend:
+            case "s3":
+                if self.s3_endpoint_url is None or self.s3_access_key is None or self.s3_secret_key is None:
+                    msg = f"Invalid S3 storage config: {self=}"
+                    raise ConfigException(msg)
+                fs = S3FileSystem(
+                    anon=False,
+                    key=self.s3_secret_key,
+                    secret=self.s3_secret_key,
+                    endpoint_url=self.s3_endpoint_url,
+                )
+                return fs
+            case "local_store":
+                return fsspec.filesystem("file")
+            case _:
+                raise ConfigException(f"Undefined error: {self=}")
+
+    def get_default_storage(self):
+        if self.backend == "s3":
+            fs = self.get_file_system()
+            return FSSpecBackend(fs=fs, key=self.key, prefix="fs_messenger_bucket")
+
+        if self.backend == "local_store":
+            fs = self.get_file_system()
+            return FSSpecBackend(fs=fs, key=self.key)
+
+        raise ConfigException(f"Undefined error: {self=}")
+
+
+@dataclass
 class LoggingConfig:
     level: str = field(default_factory=lambda: get_upcast_env("LOGGING_APP_LEVEL", "INFO"))
 
@@ -120,6 +167,7 @@ class LoggingConfig:
 class AppConfig:
     server: ServerConfig = field(default_factory=ServerConfig)
     database: DatabaseConfig = field(default_factory=DatabaseConfig)
+    storage: StorageConfig = field(default_factory=StorageConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
 
 

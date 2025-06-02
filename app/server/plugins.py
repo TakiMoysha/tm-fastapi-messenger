@@ -1,6 +1,7 @@
 from logging import Logger, getLogger
 
 from advanced_alchemy.extensions.fastapi import AdvancedAlchemy
+from advanced_alchemy.types.file_object import storages
 from fastapi import FastAPI
 
 from app.config.base import get_config
@@ -45,3 +46,12 @@ def setup_cache(app: FastAPI):
     else:
         raise NotImplementedError
     return app.state.cache
+
+
+# =================================================
+
+
+def setup_file_storage(app: FastAPI):
+    storages.register_backend(config.storage.get_default_storage())
+
+    return None
