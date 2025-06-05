@@ -17,6 +17,7 @@ async def get_migraion_version(session: AsyncSession):
         return Literal["0"]
 
 
+@pytest.mark.tdd
 async def test_database_connection(engine: AsyncEngine, sessionmaker: async_sessionmaker[AsyncSession]):
     current_migration = await get_migraion_version(sessionmaker())
     logger.debug(current_migration)

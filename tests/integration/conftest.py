@@ -4,7 +4,6 @@ from typing import AsyncGenerator, Generator
 import pytest
 import pytest_asyncio
 from advanced_alchemy.base import orm_registry
-from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncEngine, AsyncSession, async_sessionmaker
 

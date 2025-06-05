@@ -2,7 +2,6 @@ from typing import Annotated
 
 from advanced_alchemy.extensions.fastapi import AdvancedAlchemy
 from fastapi import Depends, Request, Response, Security
-from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.base import get_config
@@ -12,7 +11,7 @@ from app.domain.protocols import IAuthenticationStrategy, IPasswordHasher
 from app.exceptions import PermissionDeniedError
 from app.lib.cache import ICache
 from app.lib.password_hasher import Argon2PasswordHasher
-from app.lib.security import oauth2_default_security
+from app.lib.security import JWTBearer
 from app.lib.strategies import JWTAuthenticationStrategy
 from app.server.plugins import alchemy
 
@@ -36,7 +35,7 @@ DepPasswordHasher = Annotated[IPasswordHasher, Depends(provide_password_hasher)]
 # =====================================================================================================
 
 
-DepAuthToken = Annotated[OAuth2PasswordRequestForm, Depends(oauth2_default_security)]
+DepAuthenticateToken = Annotated[str, Depends(JWTBearer())]
 
 
 # def get_current_active_user(fake_db):
@@ -67,7 +66,7 @@ DepAuthToken = Annotated[OAuth2PasswordRequestForm, Depends(oauth2_default_secur
 #     return user
 
 
-async def get_current_user(token: str = Depends(oauth2_default_security)) -> UserModel | None:
+async def get_current_user(token: str = Depends(JWTBearer())) -> UserModel | None:
     if token != "1":
         raise PermissionDeniedError
 

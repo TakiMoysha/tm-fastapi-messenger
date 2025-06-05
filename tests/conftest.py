@@ -1,15 +1,24 @@
+import logging
+import os
+from os import getenv
+
 import pytest
 from faker import Faker
 
 from app.config.base import get_config
 
+pytest_plugins = ("tests.user_fixtures", "tests.hypothesis_fixtures")
+logger = logging.getLogger(__name__)
 
-pytest_plugins = ("tests.user_fixtures",)
 
 def pytest_configure(config):
     config.addinivalue_line(
         "markers",
         "slow: mark test as slow to run",
+    )
+    config.addinivalue_line(
+        "markers",
+        "tdd: test for development",
     )
 
 

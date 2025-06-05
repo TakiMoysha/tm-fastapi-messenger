@@ -10,7 +10,6 @@ from app.database.models import (
 )
 
 logger = getLogger(__name__)
-pytestmark = pytest.mark.asyncio
 
 type TTestUser = UserModel | dict
 

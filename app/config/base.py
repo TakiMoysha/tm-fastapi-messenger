@@ -89,7 +89,7 @@ class DatabaseConfig:
                 future=True,
                 pool_use_lifo=True,
             )
-        elif self.url.startswith("sqltite+aiosqlite") and self.url.endswith(":memory:"):
+        elif self.url.startswith("sqlite+aiosqlite") and self.url.endswith(":memory:"):
             engine = create_async_engine(
                 url=self.url,
                 debug=debug,

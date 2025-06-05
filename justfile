@@ -3,7 +3,7 @@ set dotenv-load
 alembic_config := "app/database/migrations/alembic.ini"
 
 # ex: just server --port 8000 --host 0.0.0.0 
-server *ARGS:
+server *ARGS: setup_db
   DB_DEV=true \
   SERVER_DEBUG=true \
   LOGGING_APP_LEVEL=DEBUG \
@@ -14,7 +14,6 @@ stage *ARGS:
   DB_DEV=True \
   uv run uvicorn app.main:application --host 0.0.0.0 --port 8000 {{ ARGS }}
 
-
 # ex: just fastapi prepare_db
 fastapi *ARGS:
   uv run fastapi {{ ARGS }}
@@ -22,7 +21,6 @@ fastapi *ARGS:
 # ex: just setup_db
 setup_db bootstrap_db="fastapimessenger:fastapimessenger:fastapimessenger":
   uv run tooling/setup_db.py -q --target {{ bootstrap_db }}
-
 
 # ex: just alembic revision --autogenerate
 alembic *ARGS:

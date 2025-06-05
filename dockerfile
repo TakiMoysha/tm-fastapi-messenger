@@ -7,11 +7,13 @@ ENV PYTHONUNBUFFERED=1 \
   PYTHONDONTWRITEBYTECODE=1 \
   PYTHONFOULTHANDLER=1
 
-RUN set -eux; \
-  apt-get update; \
-  apt-get autoremove -y; \
-  rm -rf /var/lib/apt/lists/*; \
-  rm -rf /root/.cache;
+RUN <<EOF
+  set -eux
+  apt-get update
+  apt-get autoremove -y
+  rm -rf /var/lib/apt/lists/*
+  rm -rf /root/.cache
+EOF
 
 ## =================================================== UV CONFIGURATION
 ENV UV_COMPILE_BYTECODE=1 \
@@ -29,8 +31,12 @@ RUN --mount=type=cache,target=/opt/uv-cache \
 WORKDIR /workspace
 COPY . /workspace
 
-RUN chown -R www-data:www-data /app; \
-  chmod +x ./scripts/entrypoint.sh;
+RUN <<EOF
+  chown -R www-data:www-data /app
+  chmod +x ./scripts/entrypoint.sh
+  groupadd docker
+  usermod -aG docker www-data
+EOF
 
 USER www-data
 
