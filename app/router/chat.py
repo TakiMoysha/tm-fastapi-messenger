@@ -4,7 +4,7 @@ from logging import getLogger
 from fastapi import APIRouter, Path, Query, status
 from fastapi.websockets import WebSocket
 
-from app.dependencies import DepAlchemySession, DepAuthenticateToken, DepStateCache
+from app.dependencies import DepAlchemySession, DepAuthenticateToken
 from app.helpers import ws_manager
 from app.lib.utils.websockets import ws_heartbeat
 
@@ -16,7 +16,6 @@ router = APIRouter(tags=["resources"])
 async def websocket_endpoint(
     websocket: WebSocket,
     auth_token: DepAuthenticateToken,
-    cache: DepStateCache,
     chat_id: int = Path(gt=0),
 ):
     async def _input_handler(ws):
@@ -25,7 +24,7 @@ async def websocket_endpoint(
     async def _stream_handler(ws):
         pass
 
-    with ws_manager(websocket, cache) as ws:
+    with ws_manager(websocket) as ws:
         await asyncio.gather(
             _input_handler(websocket),
             _stream_handler(websocket),

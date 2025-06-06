@@ -1,3 +1,8 @@
+from logging import getLogger
+
+logger = getLogger(__name__)
+
+
 def test_syntax_app_exceptions():
     from app import exceptions as exc
 

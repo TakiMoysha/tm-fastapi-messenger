@@ -6,7 +6,6 @@ from fastapi import Request, Response
 from app.config import get_config
 from app.database.models.user import UserModel
 from app.domain.protocols import IAuthenticationStrategy
-from app.lib.cache import ICache
 from app.lib.jwt import JWTTokenPayloadSchema, create_jwt_token
 
 logger = getLogger(__name__)
@@ -18,10 +17,8 @@ class JWTAuthenticationStrategy(IAuthenticationStrategy):
         self,
         request: Request,
         response: Response,
-        storage: ICache,
         secret: str = config.server.secret_key,
     ) -> None:
-        self._storage = storage
         self._secret = secret
         self._algorithm = config.server.token_algorithm
         self._request = request
@@ -64,4 +61,4 @@ class JWTAuthenticationStrategy(IAuthenticationStrategy):
 
     async def sign_out(self, user: UserModel):
         """deleted refresh token from db and cache"""
-        self._storage.delete(f"{user.email}")
+        # self._storage.delete(f"{user.email}")

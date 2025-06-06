@@ -10,19 +10,16 @@ from anyio import Event, create_task_group, sleep
 from starlette import status
 from starlette.websockets import WebSocket, WebSocketDisconnect
 
-from app.lib.cache import ICache
 from app.lib.utils.websockets import ws_heartbeat
-
-from jwt_auth.exceptions import BaseJWTAuthError
 
 logger = getLogger(__name__)
 
 
 # ========================================================================================
 @asynccontextmanager
-async def ws_manager(websocket: WebSocket, cache: ICache) -> AsyncGenerator[WebSocket, None]:
+async def ws_manager(websocket: WebSocket) -> AsyncGenerator[WebSocket, None]:
     await websocket.accept()
-    cache.set(websocket.scope["session"], websocket)
+    # cache.set(websocket.scope["session"], websocket)
 
     async with create_task_group() as tg:
         tg.start_soon(partial(ws_heartbeat, websocket))
@@ -36,7 +33,7 @@ async def ws_manager(websocket: WebSocket, cache: ICache) -> AsyncGenerator[WebS
         logger.error("UNEXPECTED ERROR:", exc_info=err)
         await websocket.close(code=status.WS_1008_POLICY_VIOLATION)
     finally:
-        cache.delete(websocket.scope["session"])
+        # cache.delete(websocket.scope["session"])
         await websocket.close()
 
 

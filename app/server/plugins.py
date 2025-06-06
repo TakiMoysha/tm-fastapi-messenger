@@ -6,6 +6,7 @@ from fastapi import FastAPI
 
 from app.config.base import get_config
 from app.config.plugins import SQLALCHEMY_CONFIG
+from app.lib.cache import CacheBoxCache
 
 config = get_config()
 logger = getLogger(__name__)
@@ -38,13 +39,8 @@ def setup_logging(app: FastAPI):
 
 
 def setup_cache(app: FastAPI):
-    from app.lib.cache import OnlyDevInMemoryCache
-
     logger.info("Plugin:Cache")
-    if config.server.debug:
-        app.state.cache = OnlyDevInMemoryCache()
-    else:
-        raise NotImplementedError
+    app.state.cache = CacheBoxCache.default()
     return app.state.cache
 
 

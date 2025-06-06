@@ -9,7 +9,6 @@ from app.database.models.user import UserModel
 from app.domain.accounts.services import AccountService
 from app.domain.protocols import IAuthenticationStrategy, IPasswordHasher
 from app.exceptions import PermissionDeniedError
-from app.lib.cache import ICache
 from app.lib.password_hasher import Argon2PasswordHasher
 from app.lib.security import JWTBearer
 from app.lib.strategies import JWTAuthenticationStrategy
@@ -79,16 +78,6 @@ DepCurrentUser = Annotated[UserModel | None, Depends(get_current_user)]
 # =====================================================================================================
 
 
-def provide_state_cache(request: Request) -> ICache:
-    if request.app.state.cache is None:
-        raise RuntimeError("Cache is not initialized")
-
-    return request.app.state.cache
-
-
-DepStateCache = Annotated[ICache, Depends(provide_state_cache)]
-
-
 def provide_alchemy(request: Request) -> AdvancedAlchemy:
     if request.app.state.alchemy is None:
         raise RuntimeError("Alchemy is not initialized")
@@ -116,9 +105,8 @@ DepAccountService = Annotated[
 def provide_jwt_authentication_strategy(
     request: Request,
     response: Response,
-    storage: DepStateCache,
 ) -> JWTAuthenticationStrategy:
-    return JWTAuthenticationStrategy(request=request, response=response, storage=storage)
+    return JWTAuthenticationStrategy(request=request, response=response)
 
 
 DepAuthenticationDefaultStrategy = Annotated[
@@ -127,7 +115,7 @@ DepAuthenticationDefaultStrategy = Annotated[
 ]
 
 
-def provide_authorization_strategy(request: Request, response: Response, storage: DepStateCache) -> None:
+def provide_authorization_strategy(request: Request, response: Response) -> None:
     pass
 
 

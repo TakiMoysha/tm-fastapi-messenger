@@ -30,7 +30,7 @@ LOGGING_CONFIG = {
         "uvicorn.access": get_logger_config(level=config.logging.uvicorn_access_level),
         "aiosqlite": get_logger_config(level=config.logging.not_interesting),
         "watchfiles.main": get_logger_config(level=config.logging.not_interesting),
-        "": get_logger_config(level=config.logging.level),
+        "": get_logger_config(level=config.logging.app_level),
     },
 }
 

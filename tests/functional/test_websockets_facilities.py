@@ -5,7 +5,6 @@ from fastapi.testclient import TestClient
 from fastapi.websockets import WebSocket
 import pytest
 
-from app.dependencies import DepStateCache
 from app.lib.utils.websockets import ws_heartbeat
 from app.helpers import ws_manager
 
@@ -24,8 +23,8 @@ class WebsocketManager:
     def send_ping(self): ...
 
 
-async def provide_websocket_manager(websocket: WebSocket, cache: DepStateCache):
-    return await ws_manager(websocket, cache)
+async def provide_websocket_manager(websocket: WebSocket):
+    return await ws_manager(websocket)
 
 
 DepWebsocket = Annotated[WebSocket, Depends(provide_websocket_manager)]

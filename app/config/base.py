@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from app.exceptions import ConfigException
 from app.lib.utils.upcast_env import get_upcast_env
 
-APP_HOME: Final[Path] = Path(get_upcast_env("APP_HOME", "src/app")).absolute()
+APP_HOME: Final[Path] = Path(get_upcast_env("APP_HOME", "app")).absolute()
 
 _storage_backend_type = Literal["s3", "local_store"]
 
@@ -151,7 +151,7 @@ class StorageConfig:
 
 @dataclass
 class LoggingConfig:
-    level: str = field(default_factory=lambda: get_upcast_env("LOGGING_APP_LEVEL", "INFO"))
+    app_level: str = field(default_factory=lambda: get_upcast_env("LOGGING_APP_LEVEL", "INFO"))
 
     uvicorn_access_level: str = field(default_factory=lambda: get_upcast_env("LOGGING_UVICORN_ACCESS_LEVEL", "INFO"))
     uvicorn_error_level: str = field(default_factory=lambda: get_upcast_env("LOGGING_UVICORN_ERROR_LEVEL", "ERROR"))
