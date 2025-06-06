@@ -13,6 +13,8 @@ from starlette.websockets import WebSocket, WebSocketDisconnect
 from app.lib.cache import ICache
 from app.lib.utils.websockets import ws_heartbeat
 
+from jwt_auth.exceptions import BaseJWTAuthError
+
 logger = getLogger(__name__)
 
 

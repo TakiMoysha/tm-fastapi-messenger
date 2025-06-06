@@ -1,13 +1,15 @@
 set dotenv-load
 
-alembic_config := "app/database/migrations/alembic.ini"
+alembic_config := "src/app/database/migrations/alembic.ini"
+
+export APP_PATH := "src/app"
 
 # ex: just server --port 8000 --host 0.0.0.0 
 server *ARGS: setup_db
   DB_DEV=true \
   SERVER_DEBUG=true \
   LOGGING_APP_LEVEL=DEBUG \
-  uv run fastapi dev --reload {{ ARGS }}
+  uv run fastapi dev --reload "src/app/__main__.py" {{ ARGS }}
 
 # ex: just stage --workers 2
 stage *ARGS:

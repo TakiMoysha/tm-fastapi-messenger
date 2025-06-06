@@ -13,7 +13,7 @@ from sqlalchemy.ext.asyncio import AsyncEngine, create_async_engine
 from app.exceptions import ConfigException
 from app.lib.utils.upcast_env import get_upcast_env
 
-APP_HOME: Final[Path] = Path(get_upcast_env("APP_HOME", "app")).absolute()
+APP_HOME: Final[Path] = Path(get_upcast_env("APP_HOME", "src/app")).absolute()
 
 _storage_backend_type = Literal["s3", "local_store"]
 
