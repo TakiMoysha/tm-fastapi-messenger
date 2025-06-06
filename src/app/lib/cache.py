@@ -1,3 +1,4 @@
+from cachebox import Cache
 from typing import Protocol, runtime_checkable
 
 
@@ -6,7 +7,6 @@ class ICache(Protocol):
     def get(self, key): ...
     def set(self, key, value): ...
     def delete(self, key): ...
-
 
 class OnlyDevInMemoryCache(ICache):
     def __init__(self):
@@ -23,3 +23,6 @@ class OnlyDevInMemoryCache(ICache):
             return
 
         del self.cache[key]
+
+
+class CacheBoxCache(Cache): ...
