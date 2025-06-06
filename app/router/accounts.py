@@ -54,14 +54,16 @@ async def account_sign_in(
     accounts_service: deps.DepAccountService,
     authenticate_strategy: deps.DepAuthenticationDefaultStrategy,
     authorization_strategy: deps.DepAuthorizationDefaultStrategy,
-) -> JWTTokenSchema:
-    res = await accounts_service.sign_in(
+):
+    user = await accounts_service.sign_in(
         email=data.email,
         password=data.password.get_secret_value(),
         authenticate_strategy=authenticate_strategy,
     )
 
-    return JWTTokenSchema(**res["authenticate"])
+    credentials = await authenticate_strategy.authenticate(user)
+
+    return credentials
 
 
 @router.post(

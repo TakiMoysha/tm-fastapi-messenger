@@ -30,7 +30,7 @@ class JWTAuthenticationStrategy(IAuthenticationStrategy):
             ]
         )
 
-    async def authenticate(self, user: UserModel) -> dict[str, str]:
+    async def authenticate(self, user: UserModel):
         payload = JWTTokenPayloadSchema.from_dict(
             sub=user.email,
             jti=user.id,
@@ -39,21 +39,26 @@ class JWTAuthenticationStrategy(IAuthenticationStrategy):
 
         payload.exp = datetime.now(UTC) + timedelta(days=30)
         refresh_token = create_jwt_token(payload=payload)
-        self._response.set_cookie(
-            "refresh_token",
-            refresh_token,
-            httponly=True,
-            secure=True,
-            expires=payload.exp,
-        )
 
-        self._response.set_cookie(
-            "fingerprint",
-            self._fingerprint,
-            httponly=True,
-            secure=True,
-        )
-        return {"access_token": access_token, "refresh_token": refresh_token}
+        # self._response.set_cookie(
+        #     "refresh_token",
+        #     refresh_token,
+        #     httponly=True,
+        #     secure=True,
+        #     expires=payload.exp,
+        # )
+        # self._response.set_cookie(
+        #     "fingerprint",
+        #     self._fingerprint,
+        #     httponly=True,
+        #     secure=True,
+        # )
+        
+        return {
+            "access_token": access_token,
+            "refresh_token": refresh_token,
+            "revoke_token": None,
+        }
 
     # ================================================= TODO: update processing
     async def sign_up(self, user: UserModel):
@@ -61,4 +66,4 @@ class JWTAuthenticationStrategy(IAuthenticationStrategy):
 
     async def sign_out(self, user: UserModel):
         """deleted refresh token from db and cache"""
-        # self._storage.delete(f"{user.email}")
+        raise NotImplementedError(f"sign_out is not supported in <{repr(self)}>")

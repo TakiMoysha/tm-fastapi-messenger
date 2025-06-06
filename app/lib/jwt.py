@@ -25,6 +25,10 @@ class JWTTokenPayloadSchema(BaseSchema):
     jti: UUID  # user_id
     exp: datetime  # expiration time
     sub: str | None = None  # email - sensitive info
+    iss: str | None = None  # issuer
+    aud: str | None = None  # audience
+    nbf: datetime | None = None  # not before
+    iat: datetime | None = None  # issued at
 
     @field_serializer("exp")
     def serialize_exp(self, value: datetime) -> int:
@@ -52,7 +56,11 @@ def create_jwt_token(
     secret: str = config.server.secret_key,
     algorithm: str = config.server.token_algorithm,
 ):
-    return jwt.encode(payload.model_dump(mode="json"), secret, algorithm=algorithm)
+    return jwt.encode(
+        payload.model_dump(mode="json", exclude_unset=True, exclude_none=True),
+        secret,
+        algorithm=algorithm,
+    )
 
 
 def verify_token(

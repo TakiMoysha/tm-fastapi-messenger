@@ -2,7 +2,7 @@ from logging import getLogger
 
 from fastapi import APIRouter, Depends
 
-from app.lib.security import AccountSignInForm, JWTBearer
+from app.lib.security import AccountSignInForm, JWTAuthorizationCredentialsSchema
 
 
 from .accounts import router as account_router
@@ -23,8 +23,8 @@ test_router = APIRouter()
 
 
 @test_router.get("/test")
-async def default_test(auth_token=Depends(JWTBearer)):
-    return {"test": str(auth_token)}
+async def default_test(credentials=Depends(JWTAuthorizationCredentialsSchema)):
+    return {"test": credentials}
 
 
 @test_router.get("/test2")

@@ -10,8 +10,8 @@ from app.domain.accounts.services import AccountService
 from app.domain.protocols import IAuthenticationStrategy, IPasswordHasher
 from app.exceptions import PermissionDeniedError
 from app.lib.password_hasher import Argon2PasswordHasher
-from app.lib.security import JWTBearer
-from app.lib.strategies import JWTAuthenticationStrategy
+from app.lib.security import JWTBearer, JWTAuthorizationCredentialsSchema
+from app.lib.auth_strategies import JWTAuthenticationStrategy
 from app.server.plugins import alchemy
 
 config = get_config()
@@ -34,7 +34,7 @@ DepPasswordHasher = Annotated[IPasswordHasher, Depends(provide_password_hasher)]
 # =====================================================================================================
 
 
-DepAuthenticateToken = Annotated[str, Depends(JWTBearer())]
+DepAuthRequired = Annotated[JWTAuthorizationCredentialsSchema, Depends(JWTBearer())]
 
 
 # def get_current_active_user(fake_db):
@@ -65,15 +65,11 @@ DepAuthenticateToken = Annotated[str, Depends(JWTBearer())]
 #     return user
 
 
-async def get_current_user(token: str = Depends(JWTBearer())) -> UserModel | None:
-    if token != "1":
-        raise PermissionDeniedError
-
+async def get_current_user(credentials: str = Depends(JWTBearer())) -> UserModel | None:
     return None
 
 
 DepCurrentUser = Annotated[UserModel | None, Depends(get_current_user)]
-
 
 # =====================================================================================================
 

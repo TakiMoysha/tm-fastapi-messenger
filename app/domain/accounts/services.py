@@ -34,7 +34,7 @@ class AccountService(SQLAlchemyAsyncRepositoryService[UserModel]):
         *,
         authenticate_strategy: IAuthenticationStrategy | None = None,
         authorize_strategy: IAuthorizationStrategy | None = None,
-    ) -> dict:
+    ) -> UserModel:
         """"""
         logger.info(f"sign_in: <{email}>")
         obj = await self.get_one_or_none(email=email)
@@ -47,15 +47,7 @@ class AccountService(SQLAlchemyAsyncRepositoryService[UserModel]):
             raise PermissionDeniedError(status.HTTP_403_FORBIDDEN, EXC_PREVENT_LOGIN)
 
         logger.info(f"sign_in authenticate: <{obj}>")
-        auth_result = await authenticate_strategy.authenticate(user=obj)
-
-        if authorize_strategy is not None:
-            try:
-                authorize_strategy.authorize("anon", "sign-in", None)
-            except BaseAppError:
-                raise PermissionDeniedError(status.HTTP_403_FORBIDDEN, EXC_PREVENT_LOGIN)
-
-        return { "user": obj, "authenticate": auth_result }
+        return obj
 
     async def sign_up(
         self,

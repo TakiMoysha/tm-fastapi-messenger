@@ -1,10 +1,7 @@
 from logging import getLogger
 from fastapi import APIRouter
 
-from app.dependencies import (
-    DepAccountService,
-    DepAuthenticateToken,
-)
+from app.dependencies import DepAccountService, DepAuthRequired
 
 from advanced_alchemy.extensions.fastapi import filters
 
@@ -27,6 +24,6 @@ async def list_users(
 async def get_herself(
     accounts_service: DepAccountService,
     user: DepAccountService,
-    auth_token: DepAuthenticateToken,
+    credentials: DepAuthRequired,
 ):
     return user

@@ -4,7 +4,7 @@ from logging import getLogger
 from fastapi import APIRouter, Path, Query, status
 from fastapi.websockets import WebSocket
 
-from app.dependencies import DepAlchemySession, DepAuthenticateToken
+from app.dependencies import DepAlchemySession, DepAuthRequired
 from app.helpers import ws_manager
 from app.lib.utils.websockets import ws_heartbeat
 
@@ -15,7 +15,7 @@ router = APIRouter(tags=["resources"])
 @router.websocket("/ws/chats/{chat_id}")
 async def websocket_endpoint(
     websocket: WebSocket,
-    auth_token: DepAuthenticateToken,
+    credentials: DepAuthRequired,
     chat_id: int = Path(gt=0),
 ):
     async def _input_handler(ws):
@@ -37,7 +37,7 @@ async def websocket_endpoint(
     status_code=status.HTTP_200_OK,
 )
 async def health_get(
-    auth_token: DepAuthenticateToken,
+    credentials: DepAuthRequired,
     session: DepAlchemySession,
     chat_id: int = Path(gt=0),
     limit: int = Query(default=10, gt=0),
