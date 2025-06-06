@@ -5,3 +5,4 @@ URL_ACCOUNT_SIGN_IN = "/api/auth/sign-in"
 URL_ACCOUNT_SIGN_OUT = "/api/auth/sign-out"
 #
 URL_ACCOUNT_TOKEN = "/api/auth/token"
+URL_ACCOUNT_TOKEN_REFRESH = "api/auth/refresh-token"

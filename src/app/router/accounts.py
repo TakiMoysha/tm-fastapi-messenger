@@ -11,52 +11,12 @@ from pydantic.types import SecretStr
 from app import dependencies as deps
 from app.domain.base.schemas import BaseSchema
 from app.lib.jwt import JWTTokenSchema
-from app.lib.security import OAuth2SignInRequestForm
+from app.lib.security import AccountSignInForm
 from app.router import urls
 
 logger = getLogger(__name__)
 
 router = APIRouter(tags=["accounts"])
-
-# ======================================= SCHEMAS
-
-
-class AccountSignUpSchema(BaseSchema):
-    email: EmailStr
-    password: SecretStr
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "email": "Vx2yj@example.com",
-                "password": "secret",
-            },
-        }
-
-
-class AccountSignInSchema(BaseSchema):
-    email: EmailStr
-    password: SecretStr
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "email": "Vx2yj@example.com",
-                "password": "secret",
-            },
-        }
-
-
-class AccountSignInOutSchema(BaseSchema):
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "email": "Vx2yj@example.com",
-            },
-        }
-
-
-# ======================================= ENDPOINTS
 
 
 @router.post(
@@ -64,7 +24,7 @@ class AccountSignInOutSchema(BaseSchema):
     status_code=status.HTTP_201_CREATED,
 )
 async def account_sign_up(
-    data: AccountSignUpSchema,
+    data: AccountSignInForm,
     accounts_service: deps.DepAccountService,
     authenticate_strategy: deps.DepAuthenticationDefaultStrategy,
     authorization_strategy: deps.DepAuthorizationDefaultStrategy,
@@ -90,7 +50,7 @@ class ExtraOAuth2Pass(OAuth2PasswordRequestForm):
     status_code=status.HTTP_200_OK,
 )
 async def account_sign_in(
-    data: AccountSignInSchema,
+    data: AccountSignInForm,
     accounts_service: deps.DepAccountService,
     authenticate_strategy: deps.DepAuthenticationDefaultStrategy,
     authorization_strategy: deps.DepAuthorizationDefaultStrategy,
@@ -122,3 +82,15 @@ async def account_sign_out(
         authenticate_strategy=authenticate_strategy,
     )
     return res
+
+
+@router.post(
+    path=urls.URL_ACCOUNT_TOKEN_REFRESH,
+    status_code=status.HTTP_200_OK,
+)
+async def account_refresh_token(
+    accounts_service: deps.DepAccountService,
+    authenticate_strategy: deps.DepAuthenticationDefaultStrategy,
+    authorization_strategy: deps.DepAuthorizationDefaultStrategy,
+):
+    return None

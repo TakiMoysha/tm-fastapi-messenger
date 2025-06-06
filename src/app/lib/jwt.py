@@ -17,6 +17,7 @@ logger = getLogger(__name__)
 class JWTTokenSchema(BaseSchema):
     access_token: str
     refresh_token: str
+    revoke_token: str | None
     type_token: Literal["bearer"] = "bearer"
 
 

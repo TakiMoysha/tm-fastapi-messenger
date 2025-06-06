@@ -3,7 +3,7 @@ from fastapi import APIRouter
 
 from app.dependencies import (
     DepAccountService,
-    DepAuthToken,
+    DepAuthenticateToken,
 )
 
 from advanced_alchemy.extensions.fastapi import filters
@@ -27,6 +27,6 @@ async def list_users(
 async def get_herself(
     accounts_service: DepAccountService,
     user: DepAccountService,
-    auth_token: DepAuthToken,
+    auth_token: DepAuthenticateToken,
 ):
     return user
