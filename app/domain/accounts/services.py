@@ -6,7 +6,7 @@ from starlette import status
 
 from app.database.models.user import UserModel
 from app.domain.protocols import IAuthenticationStrategy, IAuthorizationStrategy, IPasswordHasher
-from app.exceptions import BaseAppError, PermissionDeniedError
+from app.exceptions import PermissionDeniedError
 from app.lib.password_hasher import Argon2PasswordHasher
 
 EXC_PREVENT_LOGIN = "User not found or credentials are wrong"
